@@ -21,10 +21,18 @@ def fetch_image(dict, index):
 
 class Cifar10Dataset(Dataset):
     def __init__(self, root_dir='dataset/cifar-10-python/cifar-10-batches-py', split='train'):
-        self.train_file_names = ['data_batch_1', 'data_batch_2', 'data_batch_3', 'data_batch_4', 'data_batch_5']
-        self.test_file_name = 'test_batch'
+
+        if split == 'train':
+            file_names = ['data_batch_1', 'data_batch_2', 'data_batch_3', 'data_batch_4', 'data_batch_5']
+        else:
+            file_names = ['test_batch']
         self.split = split
         self.root_dir = root_dir
+
+        self.data_dict = []
+        for file_name in file_names:
+            path = os.path.join(self.root_dir, file_name)
+            self.data_dict.append(unpickle(path))
 
         if self.split != 'train' and self.split != 'test':
             print("Invalid split mentioned. It should be either 'train' or 'test'.")
@@ -48,36 +56,28 @@ class Cifar10Dataset(Dataset):
     def __getitem__(self, index):
         file_index = index // 10000
         image_index = index % 10000
-        if self.split == 'train':
-            file_name = os.path.join(self.root_dir, self.train_file_names[file_index])
-        elif self.split == 'test':
-            file_name = os.path.join(self.root_dir, self.test_file_name)
+        # if self.split == 'train':
+        #     file_name = os.path.join(self.root_dir, self.train_file_names[file_index])
+        # elif self.split == 'test':
+        #     file_name = os.path.join(self.root_dir, self.test_file_name)
 
-        images_dict = unpickle(file_name)
-        pic, label = fetch_image(images_dict, image_index)
+        # images_dict = unpickle(file_name)
+        pic, label = fetch_image(self.data_dict[file_index], image_index)
         pic = self.img_transform(pic)
         label = torch.Tensor([label])
 
         return pic, label
 
     def __len__(self):
-        if self.split == 'train':
-            total_len = 0
-            for path in self.train_file_names:
-                file_path = os.path.join(self.root_dir, path)
-                images_dict = unpickle(file_path)
-                total_len += len(images_dict[b'labels'])
-        
-        elif self.split == 'test':
-            file_path = os.path.join(self.root_dir, self.test_file_name)
-            images_dict = unpickle(file_path)
-            total_len = len(images_dict[b'labels'])
-
+        total_len = 0
+        for i in self.data_dict:
+            total_len += len(i[b'labels'])
         return total_len
 
 
 if __name__ == '__main__':
     dataset = Cifar10Dataset(split='train')
+    print(dataset.__len__())
     dataloader = DataLoader(dataset, batch_size=128, shuffle=True)
     pic, label = next(iter(dataloader))
     print("Input Shape:", pic.shape)

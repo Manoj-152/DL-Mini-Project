@@ -88,7 +88,7 @@ class Bottleneck(nn.Module):
 # The four levels have 64,128,256 and 512 filters respectively.
 # Some changes from the actual resnet architecture:
 #        ---> Changed the kernel size for 7x7 to 3x3 in the first convolutional layer
-#        ---> Made the number of classes to be user-given (will be giving it as 256 while training).
+#        ---> Made the number of classes to be user-given (will be giving it as 10 while training).
 
 class Resnet(nn.Module):
     def __init__(self, block, layers, num_classes, zero_init_residual=False, groups=1, width_per_group=64, replace_stride_with_dilation=None, norm_layer=None):
