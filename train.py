@@ -10,13 +10,15 @@ import numpy as np
 from tqdm import tqdm
 import torchvision
 import matplotlib.pyplot as plt
+import random
 
 torch.manual_seed(42)
+random.seed(10)
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
 # device = torch.device("cuda:0")
-num_epochs = 100
+num_epochs = 200
 batch_size = 512
 learning_rate = 0.01
 
@@ -25,11 +27,20 @@ learning_rate = 0.01
 # train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
 # test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
 
+crop = transforms.RandomCrop(32, padding=4)
+rand_crop = transforms.Lambda(lambda x: crop(x) if random.random() < 0.75 else x)
+color_changer = transforms.ColorJitter(brightness=0.25)
+rand_color = transforms.Lambda(lambda x: color_changer(x) if random.random() < 0.5 else x)
+
+# transforms.RandomErasing(p=0.75, scale=(0.02, 0.1))
+
 transform_train = transforms.Compose([
-    transforms.RandomCrop(32, padding=4),
-    transforms.RandomHorizontalFlip(),
+    rand_color,
+    rand_crop,
+    transforms.RandomHorizontalFlip(0.5),
     transforms.ToTensor(),
     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+    transforms.RandomErasing(p=0.75, scale=(0.02, 0.33)),
 ])
 
 transform_test = transforms.Compose([
@@ -48,9 +59,9 @@ test_loader = torch.utils.data.DataLoader(
     testset, batch_size=100, shuffle=False, num_workers=2)
 
 pic, label = next(iter(train_loader))
-plt.imshow(pic[2].permute(1,2,0))
+plt.imshow(pic[0].permute(1,2,0))
 plt.savefig('scrap.png')
-exit()
+# exit()
 
 model = Resnet(BasicBlock, [2,1,1,1], 10)
 # model.to(device)
@@ -113,7 +124,7 @@ def train(model, criterion, optimizer, num_epochs):
         if acc > best_acc:
             print("Saving best checkpoint")
             save_dict = {'model': model.state_dict(), 'best_epoch': epoch, 'accuracy': acc}
-            torch.save(save_dict, 'best_ckpt.pth')
+            torch.save(save_dict, 'best_ckpt_withocclude_0.33.pth')
             best_acc = acc
 
         scheduler.step()
