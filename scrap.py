@@ -7,7 +7,7 @@ def unpickle(file):
     return dict
 
 
-res = unpickle('dataset/cifar-10-python/cifar-10-batches-py/data_batch_1')
+res = unpickle('dataset/cifar-10-python/cifar-10-batches-py/data_batch_2')
 # res = unpickle('dataset/cifar-10-python/cifar-10-batches-py/test_batch')
 print(res[b'data'].shape)
 num = 1
