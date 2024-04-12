@@ -3,6 +3,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
+from torchsummary import summary
 
 ########################################################################
 ################### Building the Resnet Architecture ###################
@@ -165,10 +166,12 @@ def resnet(block, layers, num_classes):
 
 if __name__ == "__main__":
     # model = resnet(BasicBlock, [2,2,2,2], 10) # Resnet18 (a total of 8 layers with 2 resblocks in each level)
-    model = resnet(BasicBlock, [2,1,1,1], 10) # Resnet19 (a total of 5 layers)
-    num_params = np.sum([p.nelement() for p in model.parameters()]) # Printing the number of parameters
-    print(num_params, ' parameters')
+    model = resnet(BasicBlock, [2,1,1,1], 10) # Resnet9 (a total of 5 layers)
+    # num_params = np.sum([p.nelement() for p in model.parameters()]) # Printing the number of parameters
+    # print(num_params, ' parameters')
 
-    x = torch.randn(128,3,100,100)
-    y = model(x)
-    print(y.size())
+    # x = torch.randn(128,3,100,100)
+    # y = model(x)
+    # print(y.size())
+
+    summary(model, (3,32,32))
