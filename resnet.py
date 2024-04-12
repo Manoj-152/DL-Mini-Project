@@ -1,3 +1,4 @@
+# Reference: https://pytorch.org/vision/0.8/_modules/torchvision/models/resnet.html 
 
 import torch
 import torch.nn as nn
@@ -6,7 +7,6 @@ import numpy as np
 ########################################################################
 ################### Building the Resnet Architecture ###################
 # Implementation by referring to the Resnet source code in torchvision library
-# Used resnet here to avoid the vanishing gradient problem
 
 def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
@@ -164,8 +164,8 @@ def resnet(block, layers, num_classes):
     return model
 
 if __name__ == "__main__":
-    # model = resnet(BasicBlock, [2,2,2,2], 10) # Resnet18 (a total of 8 layers with 2 layers in each level)
-    model = resnet(BasicBlock, [2,1,1,1], 10)
+    # model = resnet(BasicBlock, [2,2,2,2], 10) # Resnet18 (a total of 8 layers with 2 resblocks in each level)
+    model = resnet(BasicBlock, [2,1,1,1], 10) # Resnet19 (a total of 5 layers)
     num_params = np.sum([p.nelement() for p in model.parameters()]) # Printing the number of parameters
     print(num_params, ' parameters')
 

@@ -22,7 +22,6 @@ img_transform = transforms.Compose([
     ])
 
 model = Resnet(BasicBlock, [2,1,1,1], 10)
-# model.to(device)
 model = model.cuda()
 num_params = np.sum([p.nelement() for p in model.parameters()]) # Printing the number of parameters
 print(num_params, ' parameters')
