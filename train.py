@@ -31,6 +31,8 @@ crop = transforms.RandomCrop(32, padding=4)
 rand_crop = transforms.Lambda(lambda x: crop(x) if random.random() < 0.75 else x)
 color_changer = transforms.ColorJitter(brightness=0.25)
 rand_color = transforms.Lambda(lambda x: color_changer(x) if random.random() < 0.5 else x)
+grayscale = transforms.Grayscale(num_output_channels=3)
+rand_grayscale = transforms.Lambda(lambda x: grayscale(x) if random.random() < 0.5 else x)
 
 # transforms.RandomErasing(p=0.75, scale=(0.02, 0.1))
 
@@ -38,6 +40,7 @@ transform_train = transforms.Compose([
     rand_color,
     rand_crop,
     transforms.RandomHorizontalFlip(0.5),
+    rand_grayscale,
     transforms.ToTensor(),
     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
     transforms.RandomErasing(p=0.75, scale=(0.02, 0.33)),
@@ -124,7 +127,7 @@ def train(model, criterion, optimizer, num_epochs):
         if acc > best_acc:
             print("Saving best checkpoint")
             save_dict = {'model': model.state_dict(), 'best_epoch': epoch, 'accuracy': acc}
-            torch.save(save_dict, 'best_ckpt_withocclude_0.33.pth')
+            torch.save(save_dict, 'best_ckpt_grayscale.pth')
             best_acc = acc
 
         scheduler.step()
