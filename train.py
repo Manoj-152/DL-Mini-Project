@@ -32,9 +32,7 @@ rand_crop = transforms.Lambda(lambda x: crop(x) if random.random() < 0.75 else x
 color_changer = transforms.ColorJitter(brightness=0.25)
 rand_color = transforms.Lambda(lambda x: color_changer(x) if random.random() < 0.5 else x)
 grayscale = transforms.Grayscale(num_output_channels=3)
-rand_grayscale = transforms.Lambda(lambda x: grayscale(x) if random.random() < 0.5 else x)
-
-# transforms.RandomErasing(p=0.75, scale=(0.02, 0.1))
+rand_grayscale = transforms.Lambda(lambda x: grayscale(x) if random.random() < 0.2 else x)
 
 transform_train = transforms.Compose([
     rand_color,
@@ -62,13 +60,13 @@ test_loader = torch.utils.data.DataLoader(
     testset, batch_size=100, shuffle=False, num_workers=2)
 
 pic, label = next(iter(train_loader))
-plt.imshow(pic[0].permute(1,2,0))
+plt.imshow(pic[5].permute(1,2,0))
 plt.savefig('scrap.png')
 # exit()
 
 model = Resnet(BasicBlock, [2,1,1,1], 10)
 # model.to(device)
-model = model.cuda()
+model = model.to(device)
 num_params = np.sum([p.nelement() for p in model.parameters()]) # Printing the number of parameters
 print(num_params, ' parameters')
 
@@ -86,7 +84,7 @@ def train(model, criterion, optimizer, num_epochs):
         total = 0
         for images, labels in tqdm(train_loader):
             # images, labels = images.to(device), labels.to(device)
-            images, labels = images.cuda(), labels.cuda()
+            images, labels = images.to(device), labels.to(device)
             # if labels.dim() > 1:
             #     labels = torch.max(labels, 1)[1] 
 
@@ -115,7 +113,7 @@ def train(model, criterion, optimizer, num_epochs):
         total = 0
         with torch.no_grad():
             for images, labels in tqdm(test_loader):
-                images, labels = images.cuda(), labels.cuda()
+                images, labels = images.to(device), labels.to(device)
                 outputs = model(images)
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)

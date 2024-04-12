@@ -27,7 +27,7 @@ model = model.cuda()
 num_params = np.sum([p.nelement() for p in model.parameters()]) # Printing the number of parameters
 print(num_params, ' parameters')
 
-load_ckpt = torch.load('best_ckpt_withocclude_0.33.pth')
+load_ckpt = torch.load('best_ckpt_student_distil.pth')
 print(load_ckpt['best_epoch'], load_ckpt['accuracy'])
 model.load_state_dict(load_ckpt['model'])
 model.eval()
@@ -44,4 +44,4 @@ for i in range(len(test_data)):
 
 df = pd.DataFrame(data=prediction_data)
 df.set_index('ID', inplace=True)
-df.to_csv('submission2.csv')
+df.to_csv('submission_distil.csv')
